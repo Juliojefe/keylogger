@@ -15,6 +15,8 @@ def format_key(key):
             return " "
         elif key == keyboard.Key.enter:
             return "\n"
+        elif key == keyboard.Key.tab:
+            return "\t"
         else:
             return ""
 
